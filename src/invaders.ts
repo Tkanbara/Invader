@@ -23,7 +23,12 @@ export class DisplayObject {
     rightBottom: Point;
 
     // 移動方向
-    vector: Vector;
+    vector: Vector = new Vector(0, 0);
+
+    constructor(leftTop: Point, rightBottom: Point) {
+        this.leftTop = leftTop;
+        this.rightBottom = rightBottom;
+    }
 
     // 幅
     width(): number {
@@ -37,9 +42,8 @@ export class DisplayObject {
 
 
 export class Player extends DisplayObject {
-    constructor() {
-        super();
-        this.vector = new Vector(0, 0);
+    constructor(leftTop: Point, rightBottom: Point) {
+        super(leftTop, rightBottom);
     }
 }
 
