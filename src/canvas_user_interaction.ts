@@ -1,22 +1,21 @@
-import { InvaderGame, UserInteraction, Key, Invader, DisplayObject } from "./invaders";
+import {InvaderGame, UserInteraction, Key, Invader, DisplayObject, GameConfiguration} from "./invaders";
 
 export class CanvasUserInteraction implements UserInteraction {
-    private canvas: HTMLCanvasElement;
-
-    constructor(el: HTMLCanvasElement) {
-        this.canvas = el;
+    constructor(
+        private readonly canvas: HTMLCanvasElement
+    ) {
     }
 
-    init(game: InvaderGame): void {
-        this.canvas.width = game.width;
-        this.canvas.height = game.height;
+    init(config: GameConfiguration): void {
+        this.canvas.width = config.width;
+        this.canvas.height = config.height;
     }
 
     draw(game: InvaderGame): void {
-        console.log("draw " + game.gameWindow.length + " objects.");
+        console.log("draw " + game.displayObjects.length + " objects.");
 
         this.clearCanvas(game);
-        this.drawObjects(game.gameWindow);
+        this.drawObjects(game.displayObjects);
     }
 
     getKey(): Key | null {
@@ -30,11 +29,11 @@ export class CanvasUserInteraction implements UserInteraction {
 
     private drawObjects(objects: DisplayObject[]) {
         objects.forEach(o => {
-            this.getRendrer(o)(this.canvas, o);
+            this.getRenderer(o)(this.canvas, o);
         });
     }
 
-    private getRendrer(obj: DisplayObject): Renderer {
+    private getRenderer(obj: DisplayObject): Renderer {
         if (obj instanceof Invader) {
             return InvaderRenderer;
         } else {

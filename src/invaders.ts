@@ -1,15 +1,19 @@
 export class Point {
     constructor(
-        public x: number,
-        public y: number
+        public readonly x: number,
+        public readonly y: number
     ) {
+    }
+
+    moved(vector: Vector): Point {
+        return new Point(this.x + vector.x, this.y + vector.y);
     }
 }
 
 export class Vector {
     constructor(
-        public x: number,
-        public y: number
+        public readonly x: number,
+        public readonly y: number
     ) {
     }
 
@@ -24,7 +28,7 @@ export class Rect {
         public rightBottom: Point
     ) {
         // 整合性チェック処理。
-        // 面積0の四角形は許容する。
+        // 面積0の長方形は許容する。
         if (!(leftTop.x <= rightBottom.x) || !(leftTop.y <= rightBottom.y)) {
             throw new Error("invalid rectangle");
         }
@@ -41,13 +45,16 @@ export class Rect {
 
     moved(vector: Vector): Rect {
         return new Rect(
-            new Point(this.leftTop.x + vector.x, this.leftTop.y + vector.y),
-            new Point(this.rightBottom.x + vector.x, this.rightBottom.y + vector.y)
+            this.leftTop.moved(vector),
+            this.rightBottom.moved(vector)
         );
     }
 
-    intercects(other: Rect): boolean {
-        return false;
+    intersects(other: Rect): boolean {
+        let intersectsHorizontal = this.leftTop.x < other.rightBottom.x || other.leftTop.x < this.rightBottom.x;
+        let intersectsVertical= this.leftTop.y < other.rightBottom.y || other.leftTop.y < this.rightBottom.y;
+
+        return intersectsHorizontal && intersectsVertical;
     }
 }
 
@@ -76,12 +83,18 @@ export class Invader extends DisplayObject {
 }
 
 
-export class InvaderGame {
+export interface GameConfiguration {
+    width: number;
+    height: number;
+}
+
+
+export class InvaderGame implements GameConfiguration {
     public width = 640;
     public height = 480;
 
     invaders: Invader[] = [];
-    gameWindow: DisplayObject[] = [];
+    displayObjects: DisplayObject[] = [];
 
     constructor(
         private interaction: UserInteraction
@@ -95,8 +108,8 @@ export class InvaderGame {
             i.movement = new Vector(10, 0);
         });
 
-        this.gameWindow.push(...this.invaders);
-        this.gameWindow.push(new Player(new Point(615, 455), new Point(640, 480)));
+        this.displayObjects.push(...this.invaders);
+        this.displayObjects.push(new Player(new Point(615, 455), new Point(640, 480)));
     }
 
     nextFrame(): void {
@@ -118,7 +131,7 @@ export enum Key {
 
 
 export interface UserInteraction {
-    init(game: InvaderGame): void;
+    init(config: GameConfiguration): void;
     draw(game: InvaderGame): void;
     getKey(): Key | null;
 }
